@@ -14,7 +14,8 @@ def can_vote_test(request, content_type, object_id, vote):
     return can_vote(
         content_type.get_object_for_this_type(id=object_id),
         request.user,
-        request
+        request,
+        vote
     )
 
 
@@ -58,3 +59,4 @@ def like(request, content_type, id, vote):
     signals.object_liked.send(sender=content_type.model_class(),
         instance=content_type.get_object_for_this_type(id=id), request=request)
     return response
+

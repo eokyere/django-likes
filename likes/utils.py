@@ -28,18 +28,34 @@ def likes_enabled(obj, request):
         return False
     return True
 
+def has_liked(obj, user, request):
+    return Vote.objects.filter(
+        object_id=obj.id,
+        content_type=ContentType.objects.get_for_model(obj),
+        token=request.secretballot_token,
+        vote=1).exists()
 
-def can_vote(obj, user, request):
+def has_unliked(obj, user, request):
+    return Vote.objects.filter(
+        object_id=obj.id,
+        content_type=ContentType.objects.get_for_model(obj),
+        token=request.secretballot_token,
+        vote=0).exists()
+
+
+def can_vote(obj, user, request, vote=None):
     if not _votes_enabled(obj):
         return False
 
     # Common predicate
-    if Vote.objects.filter(
-        object_id=obj.id,
-        content_type=ContentType.objects.get_for_model(obj),
-        token=request.secretballot_token
-    ).exists():
-        return False
+    try:
+        v = Vote.objects.get(
+                object_id=obj.id,
+                content_type=ContentType.objects.get_for_model(obj),
+                token=request.secretballot_token)
+        return vote is not None and int(vote) != v.vote
+    except:
+        pass
 
     # The middleware could not generate a token, probably bot with missing UA
     if request.secretballot_token is None:
