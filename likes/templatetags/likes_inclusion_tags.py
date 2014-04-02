@@ -2,7 +2,7 @@ from secretballot.models import Vote
 
 from django import template
 
-from likes.utils import can_vote, likes_enabled
+from likes.utils import has_liked, has_unliked, likes_enabled
 
 register = template.Library()
 
@@ -20,7 +20,8 @@ def likes(context, obj, template=None):
         'template': template,
         'content_obj': obj,
         'likes_enabled': likes_enabled(obj, request),
-        'can_vote': can_vote(obj, request.user, request),
+        'has_liked': has_liked(obj, request.user, request),
+        'has_unliked': has_unliked(obj, request.user, request),
         'content_type': "-".join((obj._meta.app_label, obj._meta.module_name)),
         'import_js': import_js
     })
